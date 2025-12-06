@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 import os
 import json
 from http_client import get
+from logger import get_logger
+
+# Настройка логирования
+logger = get_logger("OpenWeather.Main")
 
 # Инициализация colorama
 colorama.init()
@@ -22,6 +26,9 @@ def make_get_request(url, headers=None, params=None, timeout=10):
         params: Параметры запроса (опционально)
         timeout: Таймаут запроса в секундах (по умолчанию 10)
     """
+    logger.info(f"GET запрос к {url}")
+    logger.debug(f"Параметры: {params}, Заголовки: {headers}, Таймаут: {timeout}с")
+    
     print(colorama.Fore.CYAN + f"\n[GET] Отправка запроса к: {url}")
     print(colorama.Fore.YELLOW + f"Параметры: {params}")
     print(colorama.Fore.YELLOW + f"Заголовки: {headers}")
@@ -32,16 +39,19 @@ def make_get_request(url, headers=None, params=None, timeout=10):
         # Используем функцию из http_client для базовой проверки статуса
         response = get(url, params=params, headers=headers, timeout=timeout)
         
+        logger.info(f"Успешный GET запрос, статус: {response.status_code}")
         print(colorama.Fore.GREEN + f"\n[Статус] {response.status_code} (OK)")
         print(colorama.Fore.GREEN + f"[Заголовки ответа] {dict(response.headers)}")
         print(colorama.Style.RESET_ALL)
         
         try:
             json_response = response.json()
+            logger.debug("Получен JSON ответ")
             print(colorama.Fore.CYAN + "\n[Ответ JSON]:")
             print(colorama.Style.RESET_ALL)
             print(response.json())
         except:
+            logger.debug("Получен текстовый ответ")
             print(colorama.Fore.CYAN + "\n[Ответ текст]:")
             print(colorama.Style.RESET_ALL)
             print(response.text)
@@ -49,6 +59,7 @@ def make_get_request(url, headers=None, params=None, timeout=10):
         return response
         
     except (requests.exceptions.RequestException, requests.exceptions.Timeout, ValueError) as e:
+        logger.error(f"Ошибка GET запроса: {str(e)}")
         print(colorama.Fore.RED + f"\n[Ошибка] {e}")
         print(colorama.Style.RESET_ALL)
         return None
@@ -64,6 +75,9 @@ def make_post_request(url, headers=None, data=None, json=None):
         data: Данные для отправки (опционально)
         json: JSON данные для отправки (опционально)
     """
+    logger.info(f"POST запрос к {url}")
+    logger.debug(f"Данные: {data}, JSON: {json}, Заголовки: {headers}")
+    
     try:
         print(colorama.Fore.CYAN + f"\n[POST] Отправка запроса к: {url}")
         print(colorama.Fore.YELLOW + f"Данные: {data}")
@@ -73,16 +87,19 @@ def make_post_request(url, headers=None, data=None, json=None):
         
         response = requests.post(url, headers=headers, data=data, json=json)
         
+        logger.info(f"Успешный POST запрос, статус: {response.status_code}")
         print(colorama.Fore.GREEN + f"\n[Статус] {response.status_code}")
         print(colorama.Fore.GREEN + f"[Заголовки ответа] {dict(response.headers)}")
         print(colorama.Style.RESET_ALL)
         
         try:
             json_response = response.json()
+            logger.debug("Получен JSON ответ")
             print(colorama.Fore.CYAN + "\n[Ответ JSON]:")
             print(colorama.Style.RESET_ALL)
             print(response.json())
         except:
+            logger.debug("Получен текстовый ответ")
             print(colorama.Fore.CYAN + "\n[Ответ текст]:")
             print(colorama.Style.RESET_ALL)
             print(response.text)
@@ -90,6 +107,7 @@ def make_post_request(url, headers=None, data=None, json=None):
         return response
         
     except requests.exceptions.RequestException as e:
+        logger.error(f"Ошибка POST запроса: {str(e)}")
         print(colorama.Fore.RED + f"\n[Ошибка] {e}")
         print(colorama.Style.RESET_ALL)
         return None
@@ -99,6 +117,7 @@ def main():
     """
     Основная функция для выбора типа запроса
     """
+    logger.info("Запуск тестового модуля для API запросов")
     print(colorama.Fore.MAGENTA + "=" * 50)
     print("Тестовый модуль для API запросов")
     print("=" * 50)
